@@ -1,14 +1,13 @@
 using Refactoring.FraudDetection.Models;
 using System;
+using System.Collections.Generic;
 
-namespace Refactoring.FraudDetection.Extensions
+namespace Refactoring.FraudDetection
 {
-    public static class OrderExtensions
+    public class OrderNormalizer : INormalizer<Order>
     {
-        public static void Normalize(this Order order)
-        {
-            if (order.IsNormalized) return;
-            
+        public Order Normalize(Order order)
+        {            
             //Normalize email
             var aux = order.Email.Split(new char[] { '@' }, StringSplitOptions.RemoveEmptyEntries);
 
@@ -24,7 +23,8 @@ namespace Refactoring.FraudDetection.Extensions
             //Normalize state
             order.State = order.State.Replace("il", "illinois").Replace("ca", "california").Replace("ny", "new york");
 
-            order.IsNormalized = true;
+            Console.WriteLine("wasap");
+            return order;
         }
     }
 }

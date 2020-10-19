@@ -17,7 +17,5 @@ namespace Refactoring.FraudDetection.Models
         public string ZipCode { get; set; }
 
         public string CreditCard { get; set; }
-
-        public bool IsNormalized { get; set; } 
     }
 }

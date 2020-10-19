@@ -1,4 +1,5 @@
 using Microsoft.Extensions.Logging;
+using Refactoring.FraudDetection;
 using Refactoring.FraudDetection.Models;
 using System;
 using System.Collections.Generic;
@@ -11,11 +12,13 @@ namespace Refactoring.FraudDetection
     {
         private readonly IAppSettings _config;
         private readonly ILogger<FilesOrderRepository> _logger;
+        private readonly INormalizer<Order> _orderNormalizer;
 
-        public FilesOrderRepository(IAppSettings config, ILogger<FilesOrderRepository> logger)
+        public FilesOrderRepository(IAppSettings config, ILogger<FilesOrderRepository> logger, INormalizer<Order> orderNormalizer)
         {
             _config = config;
             _logger = logger;
+            _orderNormalizer = orderNormalizer;
         }
 
         async public Task<IEnumerable<Order>> GetAllOrdersAsync()
@@ -55,8 +58,7 @@ namespace Refactoring.FraudDetection
                     order.City = items[4].ToLower();
                     order.State = items[5].ToLower();
                     order.ZipCode = items[6];
-                    order.CreditCard = items[7];
-                    order.IsNormalized = false;              
+                    order.CreditCard = items[7];          
                 }
                 catch (FormatException)
                 {
@@ -69,6 +71,7 @@ namespace Refactoring.FraudDetection
                     continue;
                 }
                 
+                var normalizedOrder = _orderNormalizer.Normalize(order);
 
                 orders.Add(order);
             }

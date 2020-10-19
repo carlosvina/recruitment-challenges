@@ -3,6 +3,7 @@
 // </copyright>
 
 using Refactoring.FraudDetection.Models;
+using Refactoring.FraudDetection.Services;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -21,7 +22,11 @@ namespace Refactoring.FraudDetection.Tests
         private Mock<ILogger<FraudRadar>> _fraudLogger;
         private Mock<ILogger<FilesOrderRepository>> _filesRepoLogger;
 
+
         private FilesOrderRepository _orderRepository;
+        private IFraudRadarService _fraudRadarService;
+        private INormalizer<Order> _orderNormalizer;
+        
 
         public TestContext TestContext { get; set; }
 
@@ -31,11 +36,14 @@ namespace Refactoring.FraudDetection.Tests
             _config = new Mock<IAppSettings>();
             _fraudLogger = new Mock<ILogger<FraudRadar>>();
             _filesRepoLogger = new Mock<ILogger<FilesOrderRepository>>();
+            
+            _fraudRadarService = new FraudRadarService();
+            _orderNormalizer = new OrderNormalizer();
 
             var testFilePath = GetTestFilePath(TestContext.TestName);
             _config.Setup(p => p.FileRepositoryPath).Returns(testFilePath);
 
-            _orderRepository = new FilesOrderRepository(_config.Object, _filesRepoLogger.Object);
+            _orderRepository = new FilesOrderRepository(_config.Object, _filesRepoLogger.Object, _orderNormalizer);
         }
 
         [TestMethod]
@@ -92,7 +100,7 @@ namespace Refactoring.FraudDetection.Tests
 
         private List<FraudResult> ExecuteTest(IEnumerable<Order> orders)
         {
-            var fraudRadar = new FraudRadar(_config.Object, _fraudLogger.Object);
+            var fraudRadar = new FraudRadar(_config.Object, _fraudLogger.Object, _fraudRadarService);
 
             return fraudRadar.Check(orders).ToList();
         }
